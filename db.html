@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simpan Data ke GitHub</title>
+    <style>
+        :root {
+            --primary: #2ea44f;
+            --primary-hover: #2c974b;
+            --dark: #24292e;
+            --light: #f6f8fa;
+            --border: #e1e4e8;
+            --error: #cb2431;
+            --success: #28a745;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: var(--dark);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 164, 79, 0.2);
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: var(--primary-hover);
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: var(--success);
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: var(--error);
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .info-box {
+            background: var(--light);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .info-box h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .info-steps {
+            list-style-type: decimal;
+            padding-left: 20px;
+        }
+        
+        .info-steps li {
+            margin-bottom: 10px;
+        }
+        
+        code {
+            background: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 14px;
+            border-top: 1px solid var(--border);
+        }
+        
+        @media (max-width: 600px) {
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simpan Data ke GitHub</h1>
+            <p>Form untuk menyimpan data input ke repository GitHub</p>
+        </header>
+        
+        <div class="content">
+            <div class="form-group">
+                <label for="nama">Nama</label>
+                <input type="text" id="nama" placeholder="Masukkan nama Anda">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Masukkan email Anda">
+            </div>
+            
+            <div class="form-group">
+                <label for="pesan">Pesan</label>
+                <textarea id="pesan" placeholder="Tulis pesan Anda di sini..."></textarea>
+            </div>
+            
+            <button id="saveButton">Simpan ke GitHub</button>
+            
+            <div id="statusMessage" class="status"></div>
+            
+            <div class="info-box">
+                <h3>Cara Setup:</h3>
+                <ol class="info-steps">
+                    <li>Buat personal access token di GitHub dengan permissions <code>repo</code></li>
+                    <li>Ganti nilai variabel <code>GITHUB_TOKEN</code> dan <code>GITHUB_USERNAME</code> di JavaScript</li>
+                    <li>Pastikan repository yang dituju sudah ada di akun GitHub Anda</li>
+                    <li>Token akan terlihat seperti: <code>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</code></li>
+                </ol>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Simpan Data ke GitHub | Hak Cipta Dilindungi</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const saveButton = document.getElementById('saveButton');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            saveButton.addEventListener('click', async function() {
+                const nama = document.getElementById('nama').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const pesan = document.getElementById('pesan').value.trim();
+                
+                if (!nama || !email || !pesan) {
+                    showStatus('Harap isi semua field!', 'error');
+                    return;
+                }
+                
+                // Ganti dengan informasi GitHub Anda
+                const GITHUB_USERNAME = 'Smaneka';
+                const GITHUB_TOKEN = 'yang muncul seperti ini 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';
+                const REPO_NAME = 'db.github.io';
+                const FILE_PATH = `data/${Date.now()}-${nama.replace(/\s+/g, '-').toLowerCase()}.json`;
+                
+                try {
+                    showStatus('Menyimpan data ke GitHub...', '');
+                    
+                    // Membuat objek data
+                    const data = {
+                        nama: nama,
+                        email: email,
+                        pesan: pesan,
+                        tanggal: new Date().toLocaleString('id-ID')
+                    };
+                    
+                    // Konversi ke base64
+                    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+                    
+                    // Kirim ke GitHub API
+                    const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: `Menambah data: ${nama} - ${new Date().toLocaleString('id-ID')}`,
+                            content: content
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        showStatus('Data berhasil disimpan ke GitHub!', 'success');
+                        // Reset form
+                        document.getElementById('nama').value = '';
+                        document.getElementById('email').value = '';
+                        document.getElementById('pesan').value = '';
+                    } else {
+                        showStatus(`Error: ${result.message}`, 'error');
+                    }
+                } catch (error) {
+                    showStatus(`Terjadi kesalahan: ${error.message}`, 'error');
+                }
+            });
+            
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status';
+                if (type) {
+                    statusMessage.classList.add(type);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
